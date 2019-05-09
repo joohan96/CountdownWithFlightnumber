@@ -4,18 +4,21 @@
 
 'use strict';
 
-let changeColor = document.getElementById('changeColor');
-
-chrome.storage.sync.get('color', function(data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
-});
-
-changeColor.onclick = function(element) {
-  let color = element.target.value;
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.executeScript(
-        tabs[0].id,
-        {code: 'document.body.style.backgroundColor = "' + color + '";'});
-  });
-};
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelector('button').addEventListener('click', onclick, false)
+  
+  function onclick () {
+    chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+      //const countDownDate = document.getElementById("returnDate").value;
+      const flightNumber = document.getElementById("flightNumber").value;
+      console.log(flightNumber);
+      chrome.tabs.sendMessage(tabs[0].id, flightNumber, setMessage)
+    }) 
+  }
+  
+  function setMessage (res) {
+    const div = document.createElement('div')
+    div.textContent = `${res.msg}`
+    document.body.appendChild(div)
+  }
+}, false)
